@@ -1,0 +1,12 @@
+metrics_to_run:
+  - final_response_quality
+  - rf_tool_accuracy
+
+custom_metrics:
+  - name: rf_tool_accuracy
+    prompt_template: |
+      Evaluate whether the agent called appropriate RF tools (such as calculate_fspl_and_rssi, calculate_fresnel_zone, optimize_ap_placement) and accurately returned numerical RF values (dB, dBm, meters, coordinates) without hallucinated physics.
+      Prompt: {prompt}
+      Final response: {response}
+      Trace: {agent_data}
+      Return JSON: {"score": <1|2|3|4|5>, "explanation": "<reason>"}

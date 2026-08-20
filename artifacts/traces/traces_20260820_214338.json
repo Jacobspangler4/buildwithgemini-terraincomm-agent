@@ -1,0 +1,1143 @@
+{
+  "eval_cases": [
+    {
+      "prompt": {
+        "parts": [
+          {
+            "text": "Calculate Free Space Path Loss (FSPL) and RSSI for a 5GHz wireless link over a distance of 100 meters, with 20 dBm Tx power and 3 dBi antenna gain."
+          }
+        ],
+        "role": "user"
+      },
+      "responses": [
+        {
+          "response": {
+            "parts": [
+              {
+                "text": "Here are the RF calculation results for your **5.0 GHz** wireless link over **100 meters**:\n\n---\n\n### **1. Calculation Parameters**\n* **Carrier Frequency ($f$):** $5.0\\text{ GHz}$\n* **Distance ($d$):** $100\\text{ meters}$\n* **Tx Power ($P_{tx}$):** $20\\text{ dBm}$ ($100\\text{ mW}$)\n* **Tx Antenna Gain ($G_{tx}$):** $3\\text{ dBi}$\n* **Rx Antenna Gain ($G_{rx}$):** $2\\text{ dBi}$ *(Standard client gain)*\n* **Extra Path Losses:** $0\\text{ dB}$ *(Ideal Line-of-Sight)*\n\n---\n\n### **2. Results Breakdown**\n\n| Metric | Value | Description |\n| :--- | :--- | :--- |\n| **EIRP** | **$23.00\\text{ dBm}$** | Effective Isotropic Radiated Power ($P_{tx} + G_{tx}$) |\n| **FSPL** | **$86.42\\text{ dB}$** | Free Space Path Loss |\n| **RSSI** | **$-61.42\\text{ dBm}$** | Received Signal Strength Indicator ($EIRP - FSPL + G_{rx}$) |\n| **SNR** | **$33.58\\text{ dB}$** | Signal-to-Noise Ratio (assuming a standard noise floor of $-95\\text{ dBm}$) |\n| **Link Margin** | **$+8.58\\text{ dB}$** | Margin above typical high-throughput requirement ($25\\text{ dB}$ SNR) |\n\n---\n\n### **3. Performance & Modulation Assessment**\n* **Signal Quality:** **Good**\n* **Estimated Data Rate Capability:** **MCS Index 7–9** (Up to **256-QAM** modulation supported).\n* **Application Suitability:** Well suited for high-density voice (VoIP), 4K/HD video streaming, real-time video conferencing, and heavy file transfers.\n\n---\n\n### **4. Engineering Notes & Considerations**\n1. **Line-of-Sight (LoS) & Fresnel Zone:** This calculation assumes unobstructed free space. Ensure at least **60% clearance of the 1st Fresnel Zone** (approx. $1.22\\text{ m}$ radius at midpoint) to avoid diffraction loss.\n2. **Fade Margin:** An RSSI of **$-61.42\\text{ dBm}$** provides an ideal link buffer. However, in outdoor or high-interference deployment environments, budget an extra **$10\\text{ to }15\\text{ dB}$ fade margin** for atmospheric attenuation, rain fading, or multipath interference."
+              }
+            ],
+            "role": "model"
+          }
+        }
+      ],
+      "eval_case_id": "fspl_calculation",
+      "agent_data": {
+        "agents": {
+          "rf_placement_agent": {
+            "agent_id": "rf_placement_agent",
+            "agent_type": "LlmAgent",
+            "description": "",
+            "instruction": "You are an expert Radio Frequency (RF) Engineer and Wireless Network Architect.\nYour primary mission is to assist network engineers, system integrators, and IT teams in designing, modeling, and optimizing wireless network connections, access point (AP) placements, and point-to-point RF links.\n\nCore Capabilities & Tools available to you:\n1. `calculate_fspl_and_rssi`: Compute Free Space Path Loss (FSPL), Effective Isotropic Radiated Power (EIRP), and Received Signal Strength (RSSI).\n2. `calculate_fresnel_zone`: Calculate 1st Fresnel zone radius, 60% line-of-sight (LoS) clearance threshold, and assess physical obstruction risks.\n3. `calculate_wall_attenuation`: Estimate signal loss (dB) across 2.4GHz, 5GHz, and 6GHz through various wall partitions (drywall, glass, concrete, brick, metal doors).\n4. `optimize_ap_placement`: Generate optimal Access Point count, (X, Y) layout grid coordinates, effective coverage radius, and non-overlapping channel plans (1/6/11 for 2.4GHz, UNII channels for 5GHz/6GHz) for rectangular floor plans.\n5. `calculate_link_budget_and_snr`: Determine Signal-to-Noise Ratio (SNR), link margin, maximum estimated MCS index, and application suitability (VoIP, 4K Streaming, AR/VR).\n\nGuidelines for Interaction:\n- Always utilize your specific RF calculation tools to compute precise mathematical formulas rather than making hand-waved approximations.\n- Clearly present calculated metrics (FSPL in dB, RSSI in dBm, SNR in dB, Fresnel radius in meters).\n- Provide practical engineering advice (e.g., cell overlap, co-channel interference avoidance, mounting height, and wall attenuation considerations).\n- Explain technical terms (such as EIRP, MCS Index, Fresnel Zone, Co-Channel Interference) clearly when relevant.\n",
+            "tools": [
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates Free Space Path Loss (FSPL) and Received Signal Strength Indicator (RSSI) for a wireless link.\n\nArgs:\n    frequency_ghz: Carrier frequency in Gigahertz (e.g. 2.4, 5.8, 6.0).\n    distance_m: Line of sight distance between transmitter and receiver in meters.\n    tx_power_dbm: Transmit power in dBm (default: 20 dBm / 100 mW).\n    tx_antenna_gain_dbi: Transmit antenna gain in dBi (default: 3 dBi).\n    rx_antenna_gain_dbi: Receive antenna gain in dBi (default: 2 dBi).\n    extra_losses_db: Additional path/attenuation losses in dB (default: 0 dB).\n\nReturns:\n    Dict containing FSPL, EIRP, RSSI, and signal quality assessment.",
+                    "name": "calculate_fspl_and_rssi",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "distance_m": {
+                          "title": "Distance M",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        },
+                        "tx_antenna_gain_dbi": {
+                          "default": 3.0,
+                          "title": "Tx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "rx_antenna_gain_dbi": {
+                          "default": 2.0,
+                          "title": "Rx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "extra_losses_db": {
+                          "default": 0.0,
+                          "title": "Extra Losses Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "distance_m"
+                      ],
+                      "title": "calculate_fspl_and_rssiParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates 1st Fresnel Zone radius and line-of-sight clearance over obstacles.\n\nArgs:\n    frequency_ghz: Operating frequency in GHz.\n    total_distance_m: Total link distance in meters.\n    obstacle_distance_m: Distance from transmitter to obstacle in meters.\n    obstacle_height_m: Height of obstacle above ground in meters.\n    tx_height_m: Height of transmitter antenna in meters.\n    rx_height_m: Height of receiver antenna in meters.\n\nReturns:\n    Dict containing 1st Fresnel zone radius, 60% clearance radius, LoS height, and status.",
+                    "name": "calculate_fresnel_zone",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "total_distance_m": {
+                          "title": "Total Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_distance_m": {
+                          "title": "Obstacle Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_height_m": {
+                          "default": 0.0,
+                          "title": "Obstacle Height M",
+                          "type": "number"
+                        },
+                        "tx_height_m": {
+                          "default": 0.0,
+                          "title": "Tx Height M",
+                          "type": "number"
+                        },
+                        "rx_height_m": {
+                          "default": 0.0,
+                          "title": "Rx Height M",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "total_distance_m",
+                        "obstacle_distance_m"
+                      ],
+                      "title": "calculate_fresnel_zoneParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Estimates RF signal attenuation through building partitions and walls.\n\nArgs:\n    wall_type: Type of wall/material (\"drywall\", \"glass\", \"brick\", \"concrete\", \"cinder_block\", \"metal_door\", \"foliage\").\n    frequency_band: Frequency band (\"2.4GHz\", \"5GHz\", or \"6GHz\").\n    quantity: Number of wall partitions passed through.\n\nReturns:\n    Dict containing attenuation per wall, total attenuation in dB, and recommendation.",
+                    "name": "calculate_wall_attenuation",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "wall_type": {
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "default": 1,
+                          "title": "Quantity",
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "wall_type"
+                      ],
+                      "title": "calculate_wall_attenuationParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates optimal Wireless Access Point (AP) layout, count, and coordinates for a given rectangular area.\n\nArgs:\n    length_m: Length of the coverage floor/area in meters.\n    width_m: Width of the coverage floor/area in meters.\n    wall_type: Predominant wall partition type (\"drywall\", \"glass\", \"brick\", \"concrete\").\n    frequency_band: Target band (\"2.4GHz\", \"5GHz\", \"6GHz\").\n    min_rssi_dbm: Target minimum RSSI edge threshold in dBm (default: -65 dBm for voice/video).\n    tx_power_dbm: Transmit power of AP in dBm (default: 20 dBm).\n\nReturns:\n    Dict with recommended AP count, coverage radius, coordinates (X, Y), and channel plan.",
+                    "name": "optimize_ap_placement",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "length_m": {
+                          "title": "Length M",
+                          "type": "number"
+                        },
+                        "width_m": {
+                          "title": "Width M",
+                          "type": "number"
+                        },
+                        "wall_type": {
+                          "default": "drywall",
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "min_rssi_dbm": {
+                          "default": -65.0,
+                          "title": "Min Rssi Dbm",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "length_m",
+                        "width_m"
+                      ],
+                      "title": "optimize_ap_placementParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Evaluates Link Budget, Signal-to-Noise Ratio (SNR), and connection performance margin.\n\nArgs:\n    rssi_dbm: Received Signal Strength in dBm.\n    noise_floor_dbm: Thermal / background noise floor in dBm (default: -95 dBm).\n    min_snr_required_db: Minimum required SNR for desired application in dB (default: 25 dB for Wi-Fi 6 high throughput).\n\nReturns:\n    Dict with calculated SNR, link margin, application suitability, and MCS rate estimation.",
+                    "name": "calculate_link_budget_and_snr",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "rssi_dbm": {
+                          "title": "Rssi Dbm",
+                          "type": "number"
+                        },
+                        "noise_floor_dbm": {
+                          "default": -95.0,
+                          "title": "Noise Floor Dbm",
+                          "type": "number"
+                        },
+                        "min_snr_required_db": {
+                          "default": 25.0,
+                          "title": "Min Snr Required Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "rssi_dbm"
+                      ],
+                      "title": "calculate_link_budget_and_snrParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ],
+            "sub_agents": []
+          }
+        },
+        "turns": [
+          {
+            "turn_index": 0,
+            "turn_id": "turn_0",
+            "events": [
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_2472152",
+                        "args": {
+                          "tx_power_dbm": 20,
+                          "frequency_ghz": 5,
+                          "tx_antenna_gain_dbi": 3,
+                          "distance_m": 100
+                        },
+                        "name": "calculate_fspl_and_rssi"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_2472152",
+                        "name": "calculate_fspl_and_rssi",
+                        "response": {
+                          "frequency_ghz": 5,
+                          "distance_m": 100,
+                          "fspl_db": 86.42,
+                          "eirp_dbm": 23,
+                          "rssi_dbm": -61.42,
+                          "signal_quality": "Good (Suitable for high-density voice, video, & data)"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_3173239",
+                        "args": {
+                          "rssi_dbm": -61.42
+                        },
+                        "name": "calculate_link_budget_and_snr"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_3173239",
+                        "name": "calculate_link_budget_and_snr",
+                        "response": {
+                          "rssi_dbm": -61.42,
+                          "noise_floor_dbm": -95.0,
+                          "snr_db": 33.58,
+                          "link_margin_db": 8.58,
+                          "estimated_mcs_capability": "MCS 7-9 (256-QAM - High Speed)",
+                          "application_suitability": "Suitable for HD Video streaming, VoIP calls, heavy file transfers"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Here are the RF calculation results for your **5.0 GHz** wireless link over **100 meters**:\n\n---\n\n### **1. Calculation Parameters**\n* **Carrier Frequency ($f$):** $5.0\\text{ GHz}$\n* **Distance ($d$):** $100\\text{ meters}$\n* **Tx Power ($P_{tx}$):** $20\\text{ dBm}$ ($100\\text{ mW}$)\n* **Tx Antenna Gain ($G_{tx}$):** $3\\text{ dBi}$\n* **Rx Antenna Gain ($G_{rx}$):** $2\\text{ dBi}$ *(Standard client gain)*\n* **Extra Path Losses:** $0\\text{ dB}$ *(Ideal Line-of-Sight)*\n\n---\n\n### **2. Results Breakdown**\n\n| Metric | Value | Description |\n| :--- | :--- | :--- |\n| **EIRP** | **$23.00\\text{ dBm}$** | Effective Isotropic Radiated Power ($P_{tx} + G_{tx}$) |\n| **FSPL** | **$86.42\\text{ dB}$** | Free Space Path Loss |\n| **RSSI** | **$-61.42\\text{ dBm}$** | Received Signal Strength Indicator ($EIRP - FSPL + G_{rx}$) |\n| **SNR** | **$33.58\\text{ dB}$** | Signal-to-Noise Ratio (assuming a standard noise floor of $-95\\text{ dBm}$) |\n| **Link Margin** | **$+8.58\\text{ dB}$** | Margin above typical high-throughput requirement ($25\\text{ dB}$ SNR) |\n\n---\n\n### **3. Performance & Modulation Assessment**\n* **Signal Quality:** **Good**\n* **Estimated Data Rate Capability:** **MCS Index 7–9** (Up to **256-QAM** modulation supported).\n* **Application Suitability:** Well suited for high-density voice (VoIP), 4K/HD video streaming, real-time video conferencing, and heavy file transfers.\n\n---\n\n### **4. Engineering Notes & Considerations**\n1. **Line-of-Sight (LoS) & Fresnel Zone:** This calculation assumes unobstructed free space. Ensure at least **60% clearance of the 1st Fresnel Zone** (approx. $1.22\\text{ m}$ radius at midpoint) to avoid diffraction loss.\n2. **Fade Margin:** An RSSI of **$-61.42\\text{ dBm}$** provides an ideal link buffer. However, in outdoor or high-interference deployment environments, budget an extra **$10\\text{ to }15\\text{ dB}$ fade margin** for atmospheric attenuation, rain fading, or multipath interference."
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "prompt": {
+        "parts": [
+          {
+            "text": "Check 1st Fresnel zone clearance for a 5.8 GHz point-to-point link over 1000 meters, where there is a 5-meter tall obstacle at 500 meters. Both Tx and Rx antennas are 10 meters high."
+          }
+        ],
+        "role": "user"
+      },
+      "responses": [
+        {
+          "response": {
+            "parts": [
+              {
+                "text": "Here is the 1st Fresnel zone clearance analysis for your 5.8 GHz point-to-point wireless link:\n\n---\n\n### **Link & Obstacle Summary**\n* **Frequency:** 5.8 GHz\n* **Total Link Distance ($d$):** 1,000 meters (1 km)\n* **Tx Antenna Height:** 10.0 meters\n* **Rx Antenna Height:** 10.0 meters\n* **Obstacle Distance ($d_1$):** 500 meters (Midpoint)\n* **Obstacle Height:** 5.0 meters\n\n---\n\n### **Calculated Parameters**\n\n| Parameter | Value | Description |\n| :--- | :--- | :--- |\n| **Line-of-Sight (LoS) Height** | **10.00 m** | Height of the direct RF beam path at 500 m |\n| **1st Fresnel Zone Radius ($r_1$)** | **3.60 m** | Maximum radius of the 1st Fresnel ellipsoid at midpoint |\n| **60% Fresnel Zone Clearance Target** | **2.16 m** | Minimum clearance required to avoid diffraction attenuation |\n| **Actual Physical Clearance** | **5.00 m** | Distance between obstacle top (5m) and LoS path (10m) |\n| **Clearance Percentage** | **138.9%** | Clearance expressed as a percentage of the 1st Fresnel radius |\n\n---\n\n### **Assessment & Recommendation**\n\n* **Link Status:** **CLEAR** (100% LoS with full 1st Fresnel Zone clearance)\n* **RF Analysis:** \n  * In RF engineering, a link requires at least **60% clearance** of the 1st Fresnel Zone ($2.16\\text{ m}$) to prevent diffraction loss and keep path loss equivalent to Free Space Path Loss (FSPL).\n  * With **5.0 meters** of clearance, the obstacle remains completely outside the entire 1st Fresnel Zone ($3.60\\text{ m}$ boundary is at $6.40\\text{ m}$ above ground level).\n  * No antenna height adjustments are required for this obstacle."
+              }
+            ],
+            "role": "model"
+          }
+        }
+      ],
+      "eval_case_id": "fresnel_clearance",
+      "agent_data": {
+        "agents": {
+          "rf_placement_agent": {
+            "agent_id": "rf_placement_agent",
+            "agent_type": "LlmAgent",
+            "description": "",
+            "instruction": "You are an expert Radio Frequency (RF) Engineer and Wireless Network Architect.\nYour primary mission is to assist network engineers, system integrators, and IT teams in designing, modeling, and optimizing wireless network connections, access point (AP) placements, and point-to-point RF links.\n\nCore Capabilities & Tools available to you:\n1. `calculate_fspl_and_rssi`: Compute Free Space Path Loss (FSPL), Effective Isotropic Radiated Power (EIRP), and Received Signal Strength (RSSI).\n2. `calculate_fresnel_zone`: Calculate 1st Fresnel zone radius, 60% line-of-sight (LoS) clearance threshold, and assess physical obstruction risks.\n3. `calculate_wall_attenuation`: Estimate signal loss (dB) across 2.4GHz, 5GHz, and 6GHz through various wall partitions (drywall, glass, concrete, brick, metal doors).\n4. `optimize_ap_placement`: Generate optimal Access Point count, (X, Y) layout grid coordinates, effective coverage radius, and non-overlapping channel plans (1/6/11 for 2.4GHz, UNII channels for 5GHz/6GHz) for rectangular floor plans.\n5. `calculate_link_budget_and_snr`: Determine Signal-to-Noise Ratio (SNR), link margin, maximum estimated MCS index, and application suitability (VoIP, 4K Streaming, AR/VR).\n\nGuidelines for Interaction:\n- Always utilize your specific RF calculation tools to compute precise mathematical formulas rather than making hand-waved approximations.\n- Clearly present calculated metrics (FSPL in dB, RSSI in dBm, SNR in dB, Fresnel radius in meters).\n- Provide practical engineering advice (e.g., cell overlap, co-channel interference avoidance, mounting height, and wall attenuation considerations).\n- Explain technical terms (such as EIRP, MCS Index, Fresnel Zone, Co-Channel Interference) clearly when relevant.\n",
+            "tools": [
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates Free Space Path Loss (FSPL) and Received Signal Strength Indicator (RSSI) for a wireless link.\n\nArgs:\n    frequency_ghz: Carrier frequency in Gigahertz (e.g. 2.4, 5.8, 6.0).\n    distance_m: Line of sight distance between transmitter and receiver in meters.\n    tx_power_dbm: Transmit power in dBm (default: 20 dBm / 100 mW).\n    tx_antenna_gain_dbi: Transmit antenna gain in dBi (default: 3 dBi).\n    rx_antenna_gain_dbi: Receive antenna gain in dBi (default: 2 dBi).\n    extra_losses_db: Additional path/attenuation losses in dB (default: 0 dB).\n\nReturns:\n    Dict containing FSPL, EIRP, RSSI, and signal quality assessment.",
+                    "name": "calculate_fspl_and_rssi",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "distance_m": {
+                          "title": "Distance M",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        },
+                        "tx_antenna_gain_dbi": {
+                          "default": 3.0,
+                          "title": "Tx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "rx_antenna_gain_dbi": {
+                          "default": 2.0,
+                          "title": "Rx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "extra_losses_db": {
+                          "default": 0.0,
+                          "title": "Extra Losses Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "distance_m"
+                      ],
+                      "title": "calculate_fspl_and_rssiParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates 1st Fresnel Zone radius and line-of-sight clearance over obstacles.\n\nArgs:\n    frequency_ghz: Operating frequency in GHz.\n    total_distance_m: Total link distance in meters.\n    obstacle_distance_m: Distance from transmitter to obstacle in meters.\n    obstacle_height_m: Height of obstacle above ground in meters.\n    tx_height_m: Height of transmitter antenna in meters.\n    rx_height_m: Height of receiver antenna in meters.\n\nReturns:\n    Dict containing 1st Fresnel zone radius, 60% clearance radius, LoS height, and status.",
+                    "name": "calculate_fresnel_zone",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "total_distance_m": {
+                          "title": "Total Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_distance_m": {
+                          "title": "Obstacle Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_height_m": {
+                          "default": 0.0,
+                          "title": "Obstacle Height M",
+                          "type": "number"
+                        },
+                        "tx_height_m": {
+                          "default": 0.0,
+                          "title": "Tx Height M",
+                          "type": "number"
+                        },
+                        "rx_height_m": {
+                          "default": 0.0,
+                          "title": "Rx Height M",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "total_distance_m",
+                        "obstacle_distance_m"
+                      ],
+                      "title": "calculate_fresnel_zoneParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Estimates RF signal attenuation through building partitions and walls.\n\nArgs:\n    wall_type: Type of wall/material (\"drywall\", \"glass\", \"brick\", \"concrete\", \"cinder_block\", \"metal_door\", \"foliage\").\n    frequency_band: Frequency band (\"2.4GHz\", \"5GHz\", or \"6GHz\").\n    quantity: Number of wall partitions passed through.\n\nReturns:\n    Dict containing attenuation per wall, total attenuation in dB, and recommendation.",
+                    "name": "calculate_wall_attenuation",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "wall_type": {
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "default": 1,
+                          "title": "Quantity",
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "wall_type"
+                      ],
+                      "title": "calculate_wall_attenuationParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates optimal Wireless Access Point (AP) layout, count, and coordinates for a given rectangular area.\n\nArgs:\n    length_m: Length of the coverage floor/area in meters.\n    width_m: Width of the coverage floor/area in meters.\n    wall_type: Predominant wall partition type (\"drywall\", \"glass\", \"brick\", \"concrete\").\n    frequency_band: Target band (\"2.4GHz\", \"5GHz\", \"6GHz\").\n    min_rssi_dbm: Target minimum RSSI edge threshold in dBm (default: -65 dBm for voice/video).\n    tx_power_dbm: Transmit power of AP in dBm (default: 20 dBm).\n\nReturns:\n    Dict with recommended AP count, coverage radius, coordinates (X, Y), and channel plan.",
+                    "name": "optimize_ap_placement",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "length_m": {
+                          "title": "Length M",
+                          "type": "number"
+                        },
+                        "width_m": {
+                          "title": "Width M",
+                          "type": "number"
+                        },
+                        "wall_type": {
+                          "default": "drywall",
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "min_rssi_dbm": {
+                          "default": -65.0,
+                          "title": "Min Rssi Dbm",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "length_m",
+                        "width_m"
+                      ],
+                      "title": "optimize_ap_placementParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Evaluates Link Budget, Signal-to-Noise Ratio (SNR), and connection performance margin.\n\nArgs:\n    rssi_dbm: Received Signal Strength in dBm.\n    noise_floor_dbm: Thermal / background noise floor in dBm (default: -95 dBm).\n    min_snr_required_db: Minimum required SNR for desired application in dB (default: 25 dB for Wi-Fi 6 high throughput).\n\nReturns:\n    Dict with calculated SNR, link margin, application suitability, and MCS rate estimation.",
+                    "name": "calculate_link_budget_and_snr",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "rssi_dbm": {
+                          "title": "Rssi Dbm",
+                          "type": "number"
+                        },
+                        "noise_floor_dbm": {
+                          "default": -95.0,
+                          "title": "Noise Floor Dbm",
+                          "type": "number"
+                        },
+                        "min_snr_required_db": {
+                          "default": 25.0,
+                          "title": "Min Snr Required Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "rssi_dbm"
+                      ],
+                      "title": "calculate_link_budget_and_snrParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ],
+            "sub_agents": []
+          }
+        },
+        "turns": [
+          {
+            "turn_index": 0,
+            "turn_id": "turn_0",
+            "events": [
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_1755276",
+                        "args": {
+                          "obstacle_distance_m": 500,
+                          "tx_height_m": 10,
+                          "rx_height_m": 10,
+                          "total_distance_m": 1000,
+                          "obstacle_height_m": 5,
+                          "frequency_ghz": 5.8
+                        },
+                        "name": "calculate_fresnel_zone"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_1755276",
+                        "name": "calculate_fresnel_zone",
+                        "response": {
+                          "frequency_ghz": 5.8,
+                          "total_distance_m": 1000,
+                          "obstacle_distance_m": 500,
+                          "fresnel_radius_1st_m": 3.6,
+                          "fresnel_radius_60pct_m": 2.16,
+                          "los_height_at_obstacle_m": 10.0,
+                          "obstacle_clearance_m": 5.0,
+                          "status": "Clear (100% LoS with >60% 1st Fresnel Zone clearance)"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Here is the 1st Fresnel zone clearance analysis for your 5.8 GHz point-to-point wireless link:\n\n---\n\n### **Link & Obstacle Summary**\n* **Frequency:** 5.8 GHz\n* **Total Link Distance ($d$):** 1,000 meters (1 km)\n* **Tx Antenna Height:** 10.0 meters\n* **Rx Antenna Height:** 10.0 meters\n* **Obstacle Distance ($d_1$):** 500 meters (Midpoint)\n* **Obstacle Height:** 5.0 meters\n\n---\n\n### **Calculated Parameters**\n\n| Parameter | Value | Description |\n| :--- | :--- | :--- |\n| **Line-of-Sight (LoS) Height** | **10.00 m** | Height of the direct RF beam path at 500 m |\n| **1st Fresnel Zone Radius ($r_1$)** | **3.60 m** | Maximum radius of the 1st Fresnel ellipsoid at midpoint |\n| **60% Fresnel Zone Clearance Target** | **2.16 m** | Minimum clearance required to avoid diffraction attenuation |\n| **Actual Physical Clearance** | **5.00 m** | Distance between obstacle top (5m) and LoS path (10m) |\n| **Clearance Percentage** | **138.9%** | Clearance expressed as a percentage of the 1st Fresnel radius |\n\n---\n\n### **Assessment & Recommendation**\n\n* **Link Status:** **CLEAR** (100% LoS with full 1st Fresnel Zone clearance)\n* **RF Analysis:** \n  * In RF engineering, a link requires at least **60% clearance** of the 1st Fresnel Zone ($2.16\\text{ m}$) to prevent diffraction loss and keep path loss equivalent to Free Space Path Loss (FSPL).\n  * With **5.0 meters** of clearance, the obstacle remains completely outside the entire 1st Fresnel Zone ($3.60\\text{ m}$ boundary is at $6.40\\text{ m}$ above ground level).\n  * No antenna height adjustments are required for this obstacle."
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "prompt": {
+        "parts": [
+          {
+            "text": "We need to cover a 40 meter by 20 meter office with drywall partitions using 5 GHz Wi-Fi. What is the recommended number of APs, their (X,Y) coordinates, and channel plan to guarantee at least -65 dBm coverage?"
+          }
+        ],
+        "role": "user"
+      },
+      "responses": [
+        {
+          "response": {
+            "parts": [
+              {
+                "text": "Based on RF link modeling for a **40 m × 20 m (800 m²)** office area using the **5 GHz Wi-Fi band** with drywall partitions, here is the detailed access point (AP) deployment plan.\n\n---\n\n### 1. AP Deployment Strategy\n\n#### Option A: Single-AP Layout (Open-Plan / Light Partitioning)\nFor basic coverage where signal passes through at most 1–2 drywall walls, **1 Access Point** centrally mounted is sufficient to meet your **-65 dBm** RSSI requirement across the entire space.\n\n* **Recommended AP Count:** 1 AP\n* **Placement Coordinates:**\n  * **AP-1:** $(X = 20\\text{ m}, Y = 10\\text{ m})$ (Center of floor)\n* **Channel Assignment:** \n  * **Channel:** 36 (5180 MHz)\n  * **Channel Bandwidth:** 40 MHz (UNII-1)\n\n---\n\n#### Option B: Dual-AP Layout (Recommended for High Client Density / Heavy Partitioning)\nIf your office has multiple interior rooms, high client density (>25 devices per AP), or requires seamless 802.11k/r roaming and redundancy, a **2-AP layout** is the optimal enterprise standard.\n\n* **Recommended AP Count:** 2 APs\n* **Placement Coordinates:**\n  * **AP-1:** $(X = 10\\text{ m}, Y = 10\\text{ m})$\n  * **AP-2:** $(X = 30\\text{ m}, Y = 10\\text{ m})$\n* **Channel Assignment (Non-overlapping):**\n  * **AP-1:** Channel 36 (5180 MHz), 20/40 MHz BW\n  * **AP-2:** Channel 44 (5220 MHz) or Channel 149 (5745 MHz), 20/40 MHz BW\n\n---\n\n### 2. Calculated RF & Link Budget Metrics\n\n| Parameter | Single AP (Center to Corner) | Dual AP (AP to Edge) | Target / Benchmark |\n| :--- | :--- | :--- | :--- |\n| **Max Distance to Edge** | ~22.36 m | ~14.14 m | — |\n| **Tx Power + Antenna Gain (EIRP)** | 23 dBm (20 dBm Tx + 3 dBi Gain) | 23 dBm | Standard AP |\n| **Drywall Attenuation (5 GHz)** | 4.0 dB per wall | 4.0 dB per wall | ~4 dB loss |\n| **Free Space Path Loss (FSPL)** | ~73.75 dB | ~69.76 dB | Calculated @ 5.2 GHz |\n| **Predicted Corner RSSI** | **-52.75 dBm** | **-48.76 dBm** | **≥ -65 dBm (Achieved)** |\n| **Signal-to-Noise Ratio (SNR)** | ~42.25 dB | ~46.24 dB | ≥ 25 dB for Wi-Fi 6 |\n| **Link Margin above -65 dBm** | +12.25 dB | +16.24 dB | — |\n| **Supported Data Rates** | MCS 7–9 (256-QAM / High Throughput) | MCS 9–11 (High-Density) | VoIP, 4K Stream, AR/VR |\n\n---\n\n### 3. Engineering & Installation Best Practices\n\n1. **Mounting Height & Orientation:**\n   * Ceiling-mount APs horizontally at a height of **2.5 m to 3.0 m** facing downwards to take advantage of the AP antenna's omnidirectional ceiling pattern.\n2. **Obstruction Clearance:**\n   * Keep APs at least **1.0 to 1.5 m away** from metal objects (HVAC ducts, structural steel beams, drop-ceiling grids) to prevent severe multipath reflections.\n3. **Roaming & Cell Overlap:**\n   * Maintain a **15% to 20% cell overlap** between APs at the -67 dBm boundary to enable seamless fast-roaming (802.11r/k/v) for voice over Wi-Fi and mobile devices.\n4. **Co-Channel Interference (CCI) Avoidance:**\n   * In a 2-AP layout, ensure distinct UNII channels (e.g., Ch 36 & Ch 44 for 40 MHz, or Ch 36 & Ch 149 for 80 MHz) to prevent self-interference."
+              }
+            ],
+            "role": "model"
+          }
+        }
+      ],
+      "eval_case_id": "ap_placement_recommendation",
+      "agent_data": {
+        "agents": {
+          "rf_placement_agent": {
+            "agent_id": "rf_placement_agent",
+            "agent_type": "LlmAgent",
+            "description": "",
+            "instruction": "You are an expert Radio Frequency (RF) Engineer and Wireless Network Architect.\nYour primary mission is to assist network engineers, system integrators, and IT teams in designing, modeling, and optimizing wireless network connections, access point (AP) placements, and point-to-point RF links.\n\nCore Capabilities & Tools available to you:\n1. `calculate_fspl_and_rssi`: Compute Free Space Path Loss (FSPL), Effective Isotropic Radiated Power (EIRP), and Received Signal Strength (RSSI).\n2. `calculate_fresnel_zone`: Calculate 1st Fresnel zone radius, 60% line-of-sight (LoS) clearance threshold, and assess physical obstruction risks.\n3. `calculate_wall_attenuation`: Estimate signal loss (dB) across 2.4GHz, 5GHz, and 6GHz through various wall partitions (drywall, glass, concrete, brick, metal doors).\n4. `optimize_ap_placement`: Generate optimal Access Point count, (X, Y) layout grid coordinates, effective coverage radius, and non-overlapping channel plans (1/6/11 for 2.4GHz, UNII channels for 5GHz/6GHz) for rectangular floor plans.\n5. `calculate_link_budget_and_snr`: Determine Signal-to-Noise Ratio (SNR), link margin, maximum estimated MCS index, and application suitability (VoIP, 4K Streaming, AR/VR).\n\nGuidelines for Interaction:\n- Always utilize your specific RF calculation tools to compute precise mathematical formulas rather than making hand-waved approximations.\n- Clearly present calculated metrics (FSPL in dB, RSSI in dBm, SNR in dB, Fresnel radius in meters).\n- Provide practical engineering advice (e.g., cell overlap, co-channel interference avoidance, mounting height, and wall attenuation considerations).\n- Explain technical terms (such as EIRP, MCS Index, Fresnel Zone, Co-Channel Interference) clearly when relevant.\n",
+            "tools": [
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates Free Space Path Loss (FSPL) and Received Signal Strength Indicator (RSSI) for a wireless link.\n\nArgs:\n    frequency_ghz: Carrier frequency in Gigahertz (e.g. 2.4, 5.8, 6.0).\n    distance_m: Line of sight distance between transmitter and receiver in meters.\n    tx_power_dbm: Transmit power in dBm (default: 20 dBm / 100 mW).\n    tx_antenna_gain_dbi: Transmit antenna gain in dBi (default: 3 dBi).\n    rx_antenna_gain_dbi: Receive antenna gain in dBi (default: 2 dBi).\n    extra_losses_db: Additional path/attenuation losses in dB (default: 0 dB).\n\nReturns:\n    Dict containing FSPL, EIRP, RSSI, and signal quality assessment.",
+                    "name": "calculate_fspl_and_rssi",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "distance_m": {
+                          "title": "Distance M",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        },
+                        "tx_antenna_gain_dbi": {
+                          "default": 3.0,
+                          "title": "Tx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "rx_antenna_gain_dbi": {
+                          "default": 2.0,
+                          "title": "Rx Antenna Gain Dbi",
+                          "type": "number"
+                        },
+                        "extra_losses_db": {
+                          "default": 0.0,
+                          "title": "Extra Losses Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "distance_m"
+                      ],
+                      "title": "calculate_fspl_and_rssiParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates 1st Fresnel Zone radius and line-of-sight clearance over obstacles.\n\nArgs:\n    frequency_ghz: Operating frequency in GHz.\n    total_distance_m: Total link distance in meters.\n    obstacle_distance_m: Distance from transmitter to obstacle in meters.\n    obstacle_height_m: Height of obstacle above ground in meters.\n    tx_height_m: Height of transmitter antenna in meters.\n    rx_height_m: Height of receiver antenna in meters.\n\nReturns:\n    Dict containing 1st Fresnel zone radius, 60% clearance radius, LoS height, and status.",
+                    "name": "calculate_fresnel_zone",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "frequency_ghz": {
+                          "title": "Frequency Ghz",
+                          "type": "number"
+                        },
+                        "total_distance_m": {
+                          "title": "Total Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_distance_m": {
+                          "title": "Obstacle Distance M",
+                          "type": "number"
+                        },
+                        "obstacle_height_m": {
+                          "default": 0.0,
+                          "title": "Obstacle Height M",
+                          "type": "number"
+                        },
+                        "tx_height_m": {
+                          "default": 0.0,
+                          "title": "Tx Height M",
+                          "type": "number"
+                        },
+                        "rx_height_m": {
+                          "default": 0.0,
+                          "title": "Rx Height M",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "frequency_ghz",
+                        "total_distance_m",
+                        "obstacle_distance_m"
+                      ],
+                      "title": "calculate_fresnel_zoneParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Estimates RF signal attenuation through building partitions and walls.\n\nArgs:\n    wall_type: Type of wall/material (\"drywall\", \"glass\", \"brick\", \"concrete\", \"cinder_block\", \"metal_door\", \"foliage\").\n    frequency_band: Frequency band (\"2.4GHz\", \"5GHz\", or \"6GHz\").\n    quantity: Number of wall partitions passed through.\n\nReturns:\n    Dict containing attenuation per wall, total attenuation in dB, and recommendation.",
+                    "name": "calculate_wall_attenuation",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "wall_type": {
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "default": 1,
+                          "title": "Quantity",
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "wall_type"
+                      ],
+                      "title": "calculate_wall_attenuationParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Calculates optimal Wireless Access Point (AP) layout, count, and coordinates for a given rectangular area.\n\nArgs:\n    length_m: Length of the coverage floor/area in meters.\n    width_m: Width of the coverage floor/area in meters.\n    wall_type: Predominant wall partition type (\"drywall\", \"glass\", \"brick\", \"concrete\").\n    frequency_band: Target band (\"2.4GHz\", \"5GHz\", \"6GHz\").\n    min_rssi_dbm: Target minimum RSSI edge threshold in dBm (default: -65 dBm for voice/video).\n    tx_power_dbm: Transmit power of AP in dBm (default: 20 dBm).\n\nReturns:\n    Dict with recommended AP count, coverage radius, coordinates (X, Y), and channel plan.",
+                    "name": "optimize_ap_placement",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "length_m": {
+                          "title": "Length M",
+                          "type": "number"
+                        },
+                        "width_m": {
+                          "title": "Width M",
+                          "type": "number"
+                        },
+                        "wall_type": {
+                          "default": "drywall",
+                          "title": "Wall Type",
+                          "type": "string"
+                        },
+                        "frequency_band": {
+                          "default": "5GHz",
+                          "title": "Frequency Band",
+                          "type": "string"
+                        },
+                        "min_rssi_dbm": {
+                          "default": -65.0,
+                          "title": "Min Rssi Dbm",
+                          "type": "number"
+                        },
+                        "tx_power_dbm": {
+                          "default": 20.0,
+                          "title": "Tx Power Dbm",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "length_m",
+                        "width_m"
+                      ],
+                      "title": "optimize_ap_placementParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              {
+                "function_declarations": [
+                  {
+                    "description": "Evaluates Link Budget, Signal-to-Noise Ratio (SNR), and connection performance margin.\n\nArgs:\n    rssi_dbm: Received Signal Strength in dBm.\n    noise_floor_dbm: Thermal / background noise floor in dBm (default: -95 dBm).\n    min_snr_required_db: Minimum required SNR for desired application in dB (default: 25 dB for Wi-Fi 6 high throughput).\n\nReturns:\n    Dict with calculated SNR, link margin, application suitability, and MCS rate estimation.",
+                    "name": "calculate_link_budget_and_snr",
+                    "parameters_json_schema": {
+                      "properties": {
+                        "rssi_dbm": {
+                          "title": "Rssi Dbm",
+                          "type": "number"
+                        },
+                        "noise_floor_dbm": {
+                          "default": -95.0,
+                          "title": "Noise Floor Dbm",
+                          "type": "number"
+                        },
+                        "min_snr_required_db": {
+                          "default": 25.0,
+                          "title": "Min Snr Required Db",
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "rssi_dbm"
+                      ],
+                      "title": "calculate_link_budget_and_snrParams",
+                      "type": "object"
+                    },
+                    "response_json_schema": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ],
+            "sub_agents": []
+          }
+        },
+        "turns": [
+          {
+            "turn_index": 0,
+            "turn_id": "turn_0",
+            "events": [
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_2396016",
+                        "args": {
+                          "length_m": 40,
+                          "wall_type": "drywall",
+                          "frequency_band": "5GHz",
+                          "width_m": 20,
+                          "min_rssi_dbm": -65
+                        },
+                        "name": "optimize_ap_placement"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_2396016",
+                        "name": "optimize_ap_placement",
+                        "response": {
+                          "floor_dimensions_m": "40m x 20m",
+                          "area_sq_m": 800,
+                          "recommended_ap_count": 1,
+                          "ap_effective_radius_m": 95.29,
+                          "target_min_rssi_dbm": -65,
+                          "ap_coordinates": [
+                            {
+                              "ap_id": "AP-1",
+                              "x_m": 20.0,
+                              "y_m": 10.0
+                            }
+                          ],
+                          "suggested_channel_plan": [
+                            {
+                              "ap_id": "AP-1",
+                              "channel": 36,
+                              "bandwidth": "40MHz"
+                            }
+                          ],
+                          "optimization_tips": [
+                            "Mount APs on ceilings away from metal HVAC ducts.",
+                            "Maintain 15-20% cell coverage overlap to support seamless 802.11k/r roaming.",
+                            "Ensure adjacent APs do not share the same channel to avoid Co-Channel Interference (CCI)."
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_2481599",
+                        "args": {
+                          "frequency_band": "5GHz",
+                          "wall_type": "drywall",
+                          "quantity": 1
+                        },
+                        "name": "calculate_wall_attenuation"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_2481599",
+                        "name": "calculate_wall_attenuation",
+                        "response": {
+                          "wall_type": "drywall",
+                          "frequency_band": "5GHz",
+                          "quantity": 1,
+                          "attenuation_per_wall_db": 4.0,
+                          "total_attenuation_db": 4.0,
+                          "recommendation": "Avoid placing APs directly behind thick concrete or metal partitions. Plan for additional APs if total wall loss exceeds 15 dB."
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_2436173",
+                        "args": {
+                          "tx_antenna_gain_dbi": 3,
+                          "frequency_ghz": 5.2,
+                          "rx_antenna_gain_dbi": 2,
+                          "extra_losses_db": 4,
+                          "tx_power_dbm": 20,
+                          "distance_m": 22.36
+                        },
+                        "name": "calculate_fspl_and_rssi"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_2436173",
+                        "name": "calculate_fspl_and_rssi",
+                        "response": {
+                          "frequency_ghz": 5.2,
+                          "distance_m": 22.36,
+                          "fspl_db": 73.75,
+                          "eirp_dbm": 23,
+                          "rssi_dbm": -52.75,
+                          "signal_quality": "Good (Suitable for high-density voice, video, & data)"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_2244571",
+                        "args": {
+                          "rssi_dbm": -65,
+                          "min_snr_required_db": 25,
+                          "noise_floor_dbm": -95
+                        },
+                        "name": "calculate_link_budget_and_snr"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_2244571",
+                        "name": "calculate_link_budget_and_snr",
+                        "response": {
+                          "rssi_dbm": -65,
+                          "noise_floor_dbm": -95,
+                          "snr_db": 30,
+                          "link_margin_db": 5,
+                          "estimated_mcs_capability": "MCS 7-9 (256-QAM - High Speed)",
+                          "application_suitability": "Suitable for HD Video streaming, VoIP calls, heavy file transfers"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "rf_placement_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Based on RF link modeling for a **40 m × 20 m (800 m²)** office area using the **5 GHz Wi-Fi band** with drywall partitions, here is the detailed access point (AP) deployment plan.\n\n---\n\n### 1. AP Deployment Strategy\n\n#### Option A: Single-AP Layout (Open-Plan / Light Partitioning)\nFor basic coverage where signal passes through at most 1–2 drywall walls, **1 Access Point** centrally mounted is sufficient to meet your **-65 dBm** RSSI requirement across the entire space.\n\n* **Recommended AP Count:** 1 AP\n* **Placement Coordinates:**\n  * **AP-1:** $(X = 20\\text{ m}, Y = 10\\text{ m})$ (Center of floor)\n* **Channel Assignment:** \n  * **Channel:** 36 (5180 MHz)\n  * **Channel Bandwidth:** 40 MHz (UNII-1)\n\n---\n\n#### Option B: Dual-AP Layout (Recommended for High Client Density / Heavy Partitioning)\nIf your office has multiple interior rooms, high client density (>25 devices per AP), or requires seamless 802.11k/r roaming and redundancy, a **2-AP layout** is the optimal enterprise standard.\n\n* **Recommended AP Count:** 2 APs\n* **Placement Coordinates:**\n  * **AP-1:** $(X = 10\\text{ m}, Y = 10\\text{ m})$\n  * **AP-2:** $(X = 30\\text{ m}, Y = 10\\text{ m})$\n* **Channel Assignment (Non-overlapping):**\n  * **AP-1:** Channel 36 (5180 MHz), 20/40 MHz BW\n  * **AP-2:** Channel 44 (5220 MHz) or Channel 149 (5745 MHz), 20/40 MHz BW\n\n---\n\n### 2. Calculated RF & Link Budget Metrics\n\n| Parameter | Single AP (Center to Corner) | Dual AP (AP to Edge) | Target / Benchmark |\n| :--- | :--- | :--- | :--- |\n| **Max Distance to Edge** | ~22.36 m | ~14.14 m | — |\n| **Tx Power + Antenna Gain (EIRP)** | 23 dBm (20 dBm Tx + 3 dBi Gain) | 23 dBm | Standard AP |\n| **Drywall Attenuation (5 GHz)** | 4.0 dB per wall | 4.0 dB per wall | ~4 dB loss |\n| **Free Space Path Loss (FSPL)** | ~73.75 dB | ~69.76 dB | Calculated @ 5.2 GHz |\n| **Predicted Corner RSSI** | **-52.75 dBm** | **-48.76 dBm** | **≥ -65 dBm (Achieved)** |\n| **Signal-to-Noise Ratio (SNR)** | ~42.25 dB | ~46.24 dB | ≥ 25 dB for Wi-Fi 6 |\n| **Link Margin above -65 dBm** | +12.25 dB | +16.24 dB | — |\n| **Supported Data Rates** | MCS 7–9 (256-QAM / High Throughput) | MCS 9–11 (High-Density) | VoIP, 4K Stream, AR/VR |\n\n---\n\n### 3. Engineering & Installation Best Practices\n\n1. **Mounting Height & Orientation:**\n   * Ceiling-mount APs horizontally at a height of **2.5 m to 3.0 m** facing downwards to take advantage of the AP antenna's omnidirectional ceiling pattern.\n2. **Obstruction Clearance:**\n   * Keep APs at least **1.0 to 1.5 m away** from metal objects (HVAC ducts, structural steel beams, drop-ceiling grids) to prevent severe multipath reflections.\n3. **Roaming & Cell Overlap:**\n   * Maintain a **15% to 20% cell overlap** between APs at the -67 dBm boundary to enable seamless fast-roaming (802.11r/k/v) for voice over Wi-Fi and mobile devices.\n4. **Co-Channel Interference (CCI) Avoidance:**\n   * In a 2-AP layout, ensure distinct UNII channels (e.g., Ch 36 & Ch 44 for 40 MHz, or Ch 36 & Ch 149 for 80 MHz) to prevent self-interference."
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

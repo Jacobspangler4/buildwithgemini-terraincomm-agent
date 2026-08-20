@@ -1,0 +1,37 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "fspl_calculation",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Calculate Free Space Path Loss (FSPL) and RSSI for a 5GHz wireless link over a distance of 100 meters, with 20 dBm Tx power and 3 dBi antenna gain."
+          }
+        ]
+      }
+    },
+    {
+      "eval_case_id": "fresnel_clearance",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Check 1st Fresnel zone clearance for a 5.8 GHz point-to-point link over 1000 meters, where there is a 5-meter tall obstacle at 500 meters. Both Tx and Rx antennas are 10 meters high."
+          }
+        ]
+      }
+    },
+    {
+      "eval_case_id": "ap_placement_recommendation",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "We need to cover a 40 meter by 20 meter office with drywall partitions using 5 GHz Wi-Fi. What is the recommended number of APs, their (X,Y) coordinates, and channel plan to guarantee at least -65 dBm coverage?"
+          }
+        ]
+      }
+    }
+  ]
+}
